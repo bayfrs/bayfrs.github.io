@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>JavaScript - read JSON from URL</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+
+<body>
+    <input type="text" onkeyup="trackChange(this.value)" id="myInput">
+    <div class="mypanel"></div>
+
+    <script>
+function trackChange(value) {
+    $.getJSON('https://yuzzu-api.herokuapp.com/api/instagram?link='+value, function(data) {
+        window.open(data.result.result.link)
+        var url = data.result.result.link
+        var text = '<a href="'+url+'">Halok</a>'
+
+
+        $(".mypanel").html(text);
+    });
+}
+    
+    </script>
+
+</body>
+</html>
