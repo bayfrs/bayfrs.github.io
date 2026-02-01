@@ -202,16 +202,22 @@ https://templatemo.com/tm-567-nomad-force
         <script src="js/scrollspy.min.js"></script>
         <script src="js/custom.js"></script>
 <script>
-fetch("products/products.json")
+fetch("/products/products.json")
   .then(r => r.json())
   .then(products => {
     const wrap = document.getElementById("product-list");
 
     products.forEach(p => {
+      const img = p.image.startsWith("http")
+        ? p.image
+        : "/" + p.image;
+
       wrap.innerHTML += `
         <div class="col-lg-6 col-12 mb-5">
           <div class="news-thumb" data-aos="fade-up">
-            <img src="${p.image}" class="img-fluid large-news-image news-image">
+            <img src="${img}" 
+                 class="img-fluid large-news-image news-image"
+                 style="display:block; width:100%; height:auto;">
             <div class="news-category bg-warning text-white">Product</div>
             <div class="news-text-info">
               <h5>${p.title}</h5>
