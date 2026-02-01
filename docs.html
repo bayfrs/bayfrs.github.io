@@ -215,9 +215,7 @@ fetch("/products/products.json")
       wrap.innerHTML += `
         <div class="col-lg-6 col-12 mb-5">
           <div class="news-thumb" data-aos="fade-up">
-            <img src="${img}" 
-                 class="img-fluid large-news-image news-image"
-                 style="display:block; width:100%; height:auto;">
+            <img src="${img}" class="img-fluid large-news-image news-image">
             <div class="news-category bg-warning text-white">Product</div>
             <div class="news-text-info">
               <h5>${p.title}</h5>
@@ -231,7 +229,10 @@ fetch("/products/products.json")
         </div>
       `;
     });
-  });
+
+    AOS.refresh(); // biar animasi jalan
+  })
+  .catch(err => console.error("PRODUCT ERROR:", err));
 </script>
     </body>
 </html>
