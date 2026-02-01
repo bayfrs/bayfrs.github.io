@@ -251,6 +251,29 @@ https://templatemo.com/tm-567-nomad-force
         </footer>
 
 
+<div id="product-list"></div>
+
+<!-- TEMPLATE (disembunyikan, dipakai JS) -->
+<div class="col-lg-6 col-12 mb-5 mb-lg-0 product-item" style="display:none">
+  <div class="news-thumb" data-aos="fade-up">
+    <a class="news-image-hover news-image-hover-warning product-link" target="_blank">
+      <img class="img-fluid large-news-image news-image product-image" alt="">
+    </a>
+
+    <div class="news-category bg-warning text-white">NEW</div>
+
+    <div class="news-text-info">
+      <h5 class="news-title news-title-link product-title"></h5>
+      <p class="product-desc"></p>
+      <h6 class="product-price" style="color: green;"></h6>
+      <span class="text-muted">
+        <a class="product-order" target="_blank">Order Sekarang</a>
+      </span>
+    </div>
+  </div>
+</div>
+
+
 
         <!-- JAVASCRIPT FILES -->
         <script src="js/jquery.min.js"></script>
@@ -261,6 +284,30 @@ https://templatemo.com/tm-567-nomad-force
         <script src="js/magnific-popup-options.js"></script>
         <script src="js/scrollspy.min.js"></script>
         <script src="js/custom.js"></script>
+<script>
+fetch("https://bayfrs.github.io/products/products.json")
+  .then(res => res.json())
+  .then(products => {
+    const list = document.getElementById("product-list");
+    const template = document.querySelector(".product-item");
 
+    products.forEach(p => {
+      const item = template.cloneNode(true);
+      item.style.display = "block";
+
+      item.querySelector(".product-image").src = p.image;
+      item.querySelector(".product-title").innerHTML = p.title;
+      item.querySelector(".product-desc").innerHTML = p.description;
+      item.querySelector(".product-price").innerHTML = p.price;
+      item.querySelector(".product-link").href = p.order;
+      item.querySelector(".product-order").href = p.order;
+
+      list.appendChild(item);
+    });
+
+    template.remove(); // hapus template
+  })
+  .catch(err => console.error("Gagal load produk:", err));
+</script>
     </body>
 </html>
