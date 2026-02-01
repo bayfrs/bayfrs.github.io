@@ -187,6 +187,13 @@ https://templatemo.com/tm-567-nomad-force
         <script src="js/magnific-popup-options.js"></script>
         <script src="js/scrollspy.min.js"></script>
         <script src="js/custom.js"></script>
+        <script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.AOS) {
+    AOS.init({ once: true });
+  }
+});
+</script>
 <script>
 fetch("https://bayfrs.github.io/products/products.json")
   .then(res => res.json())
