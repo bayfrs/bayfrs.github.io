@@ -209,5 +209,29 @@ https://templatemo.com/tm-567-nomad-force
         <script src="js/magnific-popup-options.js"></script>
         <script src="js/scrollspy.min.js"></script>
         <script src="js/custom.js"></script>
+        <script>
+fetch("/products/products.json")
+  .then(res => res.json())
+  .then(data => {
+    const container = document.querySelector("#product-list");
+    const template = document.querySelector(".product-card");
+
+    container.innerHTML = "";
+
+    data.forEach(p => {
+      const card = template.cloneNode(true);
+
+      card.querySelector(".product-title").textContent = p.title;
+      card.querySelector(".product-desc").textContent = p.description;
+      card.querySelector(".product-price").textContent = p.price;
+      card.querySelector(".product-image").src = p.image;
+      card.querySelector(".product-link").href = p.order;
+      card.querySelector(".product-order").href = p.order;
+
+      container.appendChild(card);
+    });
+  })
+  .catch(err => console.error("Load gagal:", err));
+</script>
     </body>
 </html>
