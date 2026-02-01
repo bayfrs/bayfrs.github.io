@@ -188,7 +188,7 @@ https://templatemo.com/tm-567-nomad-force
 
 
 <script>
-fetch("/products/products.json")
+fetch("https://bayfrs.github.io/products/products.json")
   .then(res => res.json())
   .then(products => {
     const container = document.getElementById("product-list");
@@ -200,7 +200,7 @@ fetch("/products/products.json")
         <div class="col-lg-6 col-12 mb-5 mb-lg-0">
           <div class="news-thumb" data-aos="fade-up">
             <a href="${p.order}" class="news-image-hover news-image-hover-warning" target="_blank">
-              <img src="/${p.image}" class="img-fluid large-news-image news-image" alt="">
+              <img src="https://bayfrs.github.io/${p.image}" class="img-fluid large-news-image news-image" alt="">
             </a>
 
             <div class="news-category bg-warning text-white">NEW</div>
@@ -225,7 +225,7 @@ fetch("/products/products.json")
       container.appendChild(div);
     });
 
-    AOS.refresh(); // biar animasi tetap jalan
+    AOS.refresh();
   })
   .catch(err => console.error("Gagal load produk:", err));
 </script>
