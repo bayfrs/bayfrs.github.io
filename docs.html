@@ -208,32 +208,19 @@ https://templatemo.com/tm-567-nomad-force
 
         <!-- JAVASCRIPT FILES -->
 <script>
-// ================= HELPER =================
-function getUTM() {
-  const p = new URLSearchParams(location.search);
-  return {
-    utm_source: p.get("utm_source") || "",
-    utm_campaign: p.get("utm_campaign") || ""
-  };
-}
+// ================= TRACK FUNCTION =================
+function track(event, data = {}) {
+  if (!data.product_id) return; // cegah unknown
 
-function getRef() {
-  return document.referrer
-    ? new URL(document.referrer).hostname
-    : "direct";
-}
-
-// ================= TRACK =================
-function track(event, payload = {}) {
   fetch("https://traffic.bayfrs.workers.dev/track", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       event,
+      product_id: String(data.product_id),
       page: location.pathname,
-      ref: getRef(),
-      ...getUTM(),
-      ...payload
+      ref: document.referrer || "direct",
+      time: Date.now()
     })
   }).catch(() => {});
 }
@@ -243,56 +230,55 @@ fetch(
   "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now(),
   { cache: "no-store" }
 )
-  .then(r => r.json())
-  .then(products => {
-    const list = document.getElementById("product-list");
-    const template = document.querySelector(".product-item");
-    list.innerHTML = "";
+.then(res => res.json())
+.then(products => {
+  const list = document.getElementById("product-list");
+  const template = document.querySelector(".product-item");
 
-    const viewed = JSON.parse(sessionStorage.getItem("viewed") || "[]");
+  list.innerHTML = "";
 
-    products.forEach(p => {
-      const item = template.cloneNode(true);
-      item.style.display = "block";
+  // simpan view 1x per session
+  const viewed = JSON.parse(sessionStorage.getItem("viewed_products") || "[]");
 
-      // ==== PRODUCT ID (WAJIB STABIL) ====
-      const pid = p.id; // HARUS ADA DI JSON
+  products.forEach(p => {
+    if (!p.id) return; // wajib ada ID
 
-      item.querySelector(".product-image").src =
-        "https://bayfrs.github.io/" + p.image;
+    const pid = String(p.id);
+    const item = template.cloneNode(true);
+    item.style.display = "block";
 
-      item.querySelector(".product-title").textContent = p.title;
-      item.querySelector(".product-desc").textContent = p.description;
-      item.querySelector(".product-price").textContent = p.price;
+    // IMAGE
+    item.querySelector(".product-image").src =
+      "https://bayfrs.github.io/" + p.image + "?ts=" + Date.now();
 
-      const productLink = item.querySelector(".product-link");
-      const orderBtn = item.querySelector(".product-order");
+    // TEXT
+    item.querySelector(".product-title").textContent = p.title;
+    item.querySelector(".product-desc").textContent = p.description;
+    item.querySelector(".product-price").textContent = p.price;
 
-      productLink.href = p.order;
-      orderBtn.href = p.order;
+    // LINK
+    item.querySelector(".product-link").href = p.order;
+    const orderBtn = item.querySelector(".product-order");
+    orderBtn.href = p.order;
 
-      // ===== TRACK VIEW (1x per session) =====
-      if (!viewed.includes(pid)) {
-        track("product_view", {
-          product_id: pid
-        });
-        viewed.push(pid);
-      }
+    // ===== TRACK VIEW (1x per session) =====
+    if (!viewed.includes(pid)) {
+      track("product_view", { product_id: pid });
+      viewed.push(pid);
+    }
 
-      // ===== TRACK CLICK =====
-      orderBtn.addEventListener("click", () => {
-        track("order_click", {
-          product_id: pid
-        });
-      });
-
-      list.appendChild(item);
+    // ===== TRACK CLICK ORDER =====
+    orderBtn.addEventListener("click", () => {
+      track("order_click", { product_id: pid });
     });
 
-    sessionStorage.setItem("viewed", JSON.stringify(viewed));
-    template.remove();
-  })
-  .catch(err => console.error("LOAD PRODUCT ERROR", err));
+    list.appendChild(item);
+  });
+
+  sessionStorage.setItem("viewed_products", JSON.stringify(viewed));
+  template.remove();
+})
+.catch(err => console.error("LOAD PRODUCT ERROR:", err));
 </script>
 
 <script>
