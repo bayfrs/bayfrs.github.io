@@ -263,12 +263,11 @@ fetch(
 
       // ===== TRACK KLIK ORDER =====
       orderBtn.addEventListener("click", () => {
-        track("order_click", {
-          product: p.title,
-          price: p.price,
-          page: location.pathname
-        });
-      });
+  track("order_click", {
+    product: p.title,
+    price: p.price
+  });
+});
 
       list.appendChild(item);
     });
