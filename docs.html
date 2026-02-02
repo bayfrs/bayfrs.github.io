@@ -215,13 +215,15 @@ fetch(
     const list = document.getElementById("product-list");
     const template = document.querySelector(".product-item");
 
+    list.innerHTML = ""; // anti dobel
+
     products.forEach(p => {
       const item = template.cloneNode(true);
       item.style.display = "block";
 
+      // ✅ IMAGE lewat GitHub Pages (paling aman)
       item.querySelector(".product-image").src =
-        "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/" +
-        p.image + "?ts=" + Date.now();
+        "https://bayfrs.github.io/" + p.image + "?ts=" + Date.now();
 
       item.querySelector(".product-title").textContent = p.title;
       item.querySelector(".product-desc").textContent = p.description;
