@@ -252,22 +252,21 @@ fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/p
       item.style.display = "block";
 
       const pid = p.id || btoa(p.title).slice(0, 12); // ❗ TIDAK DIUBAH
-
-let img = p.image || "";
-
-if (img.startsWith("http")) {
-  // sudah full URL
-} else {
-  img =
-    "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/" +
-    img.replace(/^\/+/, "");
-}
-
-// cache buster
-img += "?v=" + Date.now();
-
-item.querySelector(".product-image").src = img;
-
+		
+		let img = p.image || "";
+		
+		if (img.startsWith("http")) {
+		  // sudah full URL
+		} else {
+		  img =
+		    "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/" +
+		    img.replace(/^\/+/, "");
+		}
+		
+		// cache buster
+		img += "?v=" + Date.now();
+		
+		item.querySelector(".product-image").src = img;
       item.querySelector(".product-title").textContent = p.title;
       item.querySelector(".product-desc").textContent = p.description;
       item.querySelector(".product-price").textContent = p.price;
