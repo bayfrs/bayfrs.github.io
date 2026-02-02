@@ -208,15 +208,41 @@ https://templatemo.com/tm-567-nomad-force
 
         <!-- JAVASCRIPT FILES -->
 <script>
-function track(event, data = {}) {
+// ================= HELPER =================
+function getUTM() {
+  const p = new URLSearchParams(location.search);
+  return {
+    utm_source: p.get("utm_source") || "",
+    utm_campaign: p.get("utm_campaign") || ""
+  };
+}
+
+function getRef() {
+  return document.referrer
+    ? new URL(document.referrer).hostname
+    : "direct";
+}
+
+// ================= TRACK =================
+function track(event, payload = {}) {
   fetch("https://traffic.bayfrs.workers.dev/track", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ event, data })
+    body: JSON.stringify({
+      event,
+      page: location.pathname,
+      ref: getRef(),
+      ...getUTM(),
+      ...payload
+    })
   }).catch(() => {});
 }
 
-fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now())
+// ================= LOAD PRODUCT =================
+fetch(
+  "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now(),
+  { cache: "no-store" }
+)
   .then(r => r.json())
   .then(products => {
     const list = document.getElementById("product-list");
@@ -229,31 +255,34 @@ fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/p
       const item = template.cloneNode(true);
       item.style.display = "block";
 
-      const pid = p.id || btoa(p.title).slice(0, 12);
+      // ==== PRODUCT ID (WAJIB STABIL) ====
+      const pid = p.id; // HARUS ADA DI JSON
 
-      item.querySelector(".product-image").src = "https://bayfrs.github.io/" + p.image;
+      item.querySelector(".product-image").src =
+        "https://bayfrs.github.io/" + p.image;
+
       item.querySelector(".product-title").textContent = p.title;
       item.querySelector(".product-desc").textContent = p.description;
       item.querySelector(".product-price").textContent = p.price;
 
-      item.querySelector(".product-link").href = p.order;
+      const productLink = item.querySelector(".product-link");
       const orderBtn = item.querySelector(".product-order");
+
+      productLink.href = p.order;
       orderBtn.href = p.order;
 
-      // === TRACK VIEW ===
+      // ===== TRACK VIEW (1x per session) =====
       if (!viewed.includes(pid)) {
         track("product_view", {
-          product_id: pid,
-          page: location.pathname
+          product_id: pid
         });
         viewed.push(pid);
       }
 
-      // === TRACK CLICK ===
+      // ===== TRACK CLICK =====
       orderBtn.addEventListener("click", () => {
         track("order_click", {
-          product_id: pid,
-          page: location.pathname
+          product_id: pid
         });
       });
 
@@ -263,7 +292,7 @@ fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/p
     sessionStorage.setItem("viewed", JSON.stringify(viewed));
     template.remove();
   })
-  .catch(err => console.error("ERROR LOAD PRODUCT", err));
+  .catch(err => console.error("LOAD PRODUCT ERROR", err));
 </script>
 
 <script>
