@@ -283,6 +283,15 @@ if (!viewed.includes(p.title)) {
   .catch(err => console.error("LOAD PRODUCT ERROR:", err));
 </script>
 
+<script>
+function trackOrder(product) {
+  fetch("https://traffic.bayfrs.workers.dev/track", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ product })
+  });
+}
+</script>
 
         <script src="js/jquery.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
