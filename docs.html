@@ -208,63 +208,62 @@ https://templatemo.com/tm-567-nomad-force
 
         <!-- JAVASCRIPT FILES -->
 <script>
-fetch(
-  "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now(),
-  { cache: "no-store" }
-)
-.then(res => res.json())
-.then(products => {
-  const list = document.getElementById("product-list");
-  const template = document.querySelector(".product-item");
+function track(event, data = {}) {
+  fetch("https://traffic.bayfrs.workers.dev/track", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ event, data })
+  }).catch(() => {});
+}
 
-  list.innerHTML = "";
+fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now())
+  .then(r => r.json())
+  .then(products => {
+    const list = document.getElementById("product-list");
+    const template = document.querySelector(".product-item");
+    list.innerHTML = "";
 
-  // 🔒 cegah double view (per session)
-  const viewed = JSON.parse(sessionStorage.getItem("viewed_products") || "[]");
+    const viewed = JSON.parse(sessionStorage.getItem("viewed") || "[]");
 
-  products.forEach(p => {
-    const item = template.cloneNode(true);
-    item.style.display = "block";
+    products.forEach(p => {
+      const item = template.cloneNode(true);
+      item.style.display = "block";
 
-    // IMAGE
-    item.querySelector(".product-image").src =
-      "https://bayfrs.github.io/" + p.image + "?ts=" + Date.now();
+      const pid = p.id || btoa(p.title).slice(0, 12);
 
-    // TEXT
-    item.querySelector(".product-title").textContent = p.title;
-    item.querySelector(".product-desc").textContent = p.description;
-    item.querySelector(".product-price").textContent = p.price;
+      item.querySelector(".product-image").src = "https://bayfrs.github.io/" + p.image;
+      item.querySelector(".product-title").textContent = p.title;
+      item.querySelector(".product-desc").textContent = p.description;
+      item.querySelector(".product-price").textContent = p.price;
 
-    // LINK
-    const productLink = item.querySelector(".product-link");
-    const orderBtn = item.querySelector(".product-order");
+      item.querySelector(".product-link").href = p.order;
+      const orderBtn = item.querySelector(".product-order");
+      orderBtn.href = p.order;
 
-    productLink.href = p.order;
-    orderBtn.href = p.order;
+      // === TRACK VIEW ===
+      if (!viewed.includes(pid)) {
+        track("product_view", {
+          product_id: pid,
+          page: location.pathname
+        });
+        viewed.push(pid);
+      }
 
-    // ================= VIEW TRACK =================
-    if (!viewed.includes(p.id)) {
-      track("product_view", {
-        product_id: p.id
+      // === TRACK CLICK ===
+      orderBtn.addEventListener("click", () => {
+        track("order_click", {
+          product_id: pid,
+          page: location.pathname
+        });
       });
 
-      viewed.push(p.id);
-      sessionStorage.setItem("viewed_products", JSON.stringify(viewed));
-    }
-
-    // ================= CLICK TRACK =================
-    orderBtn.addEventListener("click", () => {
-      track("order_click", {
-        product_id: p.id
-      });
+      list.appendChild(item);
     });
 
-    list.appendChild(item);
-  });
-
-  template.remove();
-})
-.catch(err => console.error("LOAD PRODUCT ERROR:", err));
+    sessionStorage.setItem("viewed", JSON.stringify(viewed));
+    template.remove();
+  })
+  .catch(err => console.error("ERROR LOAD PRODUCT", err));
 </script>
 
 <script>
