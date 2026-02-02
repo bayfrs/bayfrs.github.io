@@ -253,7 +253,18 @@ fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/p
 
       const pid = p.id || btoa(p.title).slice(0, 12); // ❗ TIDAK DIUBAH
 
-      item.querySelector(".product-image").src = "https://bayfrs.github.io/" + p.image;
+let img = p.image || "";
+
+if (img.startsWith("http")) {
+  // full url
+} else if (img.startsWith("/")) {
+  img = "https://bayfrs.github.io" + img;
+} else {
+  img = "https://bayfrs.github.io/" + img;
+}
+
+item.querySelector(".product-image").src = img;
+
       item.querySelector(".product-title").textContent = p.title;
       item.querySelector(".product-desc").textContent = p.description;
       item.querySelector(".product-price").textContent = p.price;
