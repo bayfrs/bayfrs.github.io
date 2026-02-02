@@ -205,37 +205,38 @@ https://templatemo.com/tm-567-nomad-force
         </footer>
 
         <!-- JAVASCRIPT FILES -->
-	 <script>
-		fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now()), {
-		  cache: "no-store"
-		})
-		  .then(res => res.json())
-		  .then(products => {
-		    const list = document.getElementById("product-list");
-		    const template = document.querySelector(".product-item");
-		
-		    list.innerHTML = ""; // penting biar ga dobel
-		
-		    products.forEach(p => {
-		      const item = template.cloneNode(true);
-		      item.style.display = "block";
-		
-		      item.querySelector(".product-image").src =
-		        "https://bayfrs.github.io/" + p.image + "?ts=" + Date.now();
-		
-		      item.querySelector(".product-title").innerHTML = p.title;
-		      item.querySelector(".product-desc").innerHTML = p.description;
-		      item.querySelector(".product-price").innerHTML = p.price;
-		      item.querySelector(".product-link").href = p.order;
-		      item.querySelector(".product-order").href = p.order;
-		
-		      list.appendChild(item);
-		    });
-		
-		    template.remove();
-		  })
-		  .catch(err => console.error("Gagal load produk:", err));
-		</script>
+<script>
+fetch(
+  "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now(),
+  { cache: "no-store" }
+)
+  .then(res => res.json())
+  .then(products => {
+    const list = document.getElementById("product-list");
+    const template = document.querySelector(".product-item");
+
+    list.innerHTML = ""; // biar ga dobel
+
+    products.forEach(p => {
+      const item = template.cloneNode(true);
+      item.style.display = "block";
+
+      item.querySelector(".product-image").src =
+        "https://bayfrs.github.io/" + p.image + "?ts=" + Date.now();
+
+      item.querySelector(".product-title").textContent = p.title;
+      item.querySelector(".product-desc").textContent = p.description;
+      item.querySelector(".product-price").textContent = p.price;
+      item.querySelector(".product-link").href = p.order;
+      item.querySelector(".product-order").href = p.order;
+
+      list.appendChild(item);
+    });
+
+    template.remove();
+  })
+  .catch(err => console.error("Gagal load produk:", err));
+</script>
         <script src="js/jquery.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
         <script src="js/jquery.sticky.js"></script>
