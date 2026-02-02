@@ -255,11 +255,17 @@ fetch(
       orderBtn.href = p.order;
 
       // ===== TRACK VIEW (produk muncul) =====
-      track("product_view", {
-        product: p.title,
-        price: p.price,
-        page: location.pathname
-      });
+const viewed = JSON.parse(sessionStorage.getItem("viewed") || "[]");
+
+if (!viewed.includes(p.title)) {
+  track("product_view", {
+    product: p.title,
+    price: p.price
+  });
+
+  viewed.push(p.title);
+  sessionStorage.setItem("viewed", JSON.stringify(viewed));
+}"
 
       // ===== TRACK KLIK ORDER =====
       orderBtn.addEventListener("click", () => {
