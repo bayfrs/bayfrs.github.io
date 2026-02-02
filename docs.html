@@ -216,21 +216,42 @@ fetch(
     const list = document.getElementById("product-list");
     const template = document.querySelector(".product-item");
 
-    list.innerHTML = ""; // anti dobel
+    list.innerHTML = "";
 
     products.forEach(p => {
       const item = template.cloneNode(true);
       item.style.display = "block";
 
-      // ✅ IMAGE lewat GitHub Pages (paling aman)
+      // IMAGE
       item.querySelector(".product-image").src =
         "https://bayfrs.github.io/" + p.image + "?ts=" + Date.now();
 
       item.querySelector(".product-title").textContent = p.title;
       item.querySelector(".product-desc").textContent = p.description;
       item.querySelector(".product-price").textContent = p.price;
-      item.querySelector(".product-link").href = p.order;
-      item.querySelector(".product-order").href = p.order;
+
+      // LINK
+      const productLink = item.querySelector(".product-link");
+      const orderBtn = item.querySelector(".product-order");
+
+      productLink.href = p.order;
+      orderBtn.href = p.order;
+
+      // ===== TRACK VIEW (produk muncul) =====
+      track("product_view", {
+        product: p.title,
+        price: p.price,
+        page: location.pathname
+      });
+
+      // ===== TRACK KLIK ORDER =====
+      orderBtn.addEventListener("click", () => {
+        track("order_click", {
+          product: p.title,
+          price: p.price,
+          page: location.pathname
+        });
+      });
 
       list.appendChild(item);
     });
