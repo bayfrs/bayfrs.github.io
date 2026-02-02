@@ -1,6 +1,23 @@
 <!doctype html>
 <html lang="en">
     <head>
+    <script>
+function track(event, data = {}) {
+  fetch("https://traffic.bayfrs.workers.dev/track", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      event,
+      data,
+      page: location.pathname,
+      time: Date.now(),
+      ua: navigator.userAgent
+    })
+  }).catch(err => console.error("TRACK ERROR", err));
+}
+</script>
     <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4343cc3722dc4430a33594b1fa2bbd55"}'></script><!-- End Cloudflare Web Analytics -->
     	  <audio autoplay="true" src="https://bayfrs.github.io/mp3/250-milliseconds-of-silence.mp3"></audio> 
         <meta charset="utf-8">
