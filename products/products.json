@@ -38,5 +38,13 @@
     "price": "Rp300.000",
     "image": "products/images/1770067307260-27a7a8d3bf3f18083dd8da6ca7d0c64f.jpg",
     "order": "https://"
+  },
+  {
+    "id": 1770067540164,
+    "title": "Tools YouTube Automation via n8n",
+    "description": "Menggunakan termux dan berjalan di lintas android, di akses via browser Chrome",
+    "price": "Rp200.000",
+    "image": "products/images/1770067531610-59c7053abd6e67a1385be0013470f238.jpg",
+    "order": "https://"
   }
 ]
