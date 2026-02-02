@@ -239,6 +239,15 @@ fetch(
   })
   .catch(err => console.error("LOAD PRODUCT ERROR:", err));
 </script>
+
+<script>
+  function track(event, data = {}) {
+    if (window._cfBeacon) {
+      window._cfBeacon('track', event, data);
+    }
+  }
+</script>
+
         <script src="js/jquery.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
         <script src="js/jquery.sticky.js"></script>
