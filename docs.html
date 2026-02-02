@@ -208,79 +208,62 @@ https://templatemo.com/tm-567-nomad-force
 
         <!-- JAVASCRIPT FILES -->
 <script>
-// ================= TRACK FUNCTION =================
 function track(event, data = {}) {
-  if (!data.product_id) return; // cegah unknown
-
   fetch("https://traffic.bayfrs.workers.dev/track", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      event,
-      data: {                     // 🔧 EDIT: bungkus ke data
-        product: String(data.product_id), // 🔧 EDIT: pakai key "product"
-        page: location.pathname,
-        ref: document.referrer || "direct"
-      },
-      time: Date.now()
-    })
+    body: JSON.stringify({ event, data })
   }).catch(() => {});
 }
 
-// ================= LOAD PRODUCT =================
-fetch(
-  "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now(),
-  { cache: "no-store" }
-)
-.then(res => res.json())
-.then(products => {
-  const list = document.getElementById("product-list");
-  const template = document.querySelector(".product-item");
+fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now())
+  .then(r => r.json())
+  .then(products => {
+    const list = document.getElementById("product-list");
+    const template = document.querySelector(".product-item");
+    list.innerHTML = "";
 
-  list.innerHTML = "";
+    const viewed = JSON.parse(sessionStorage.getItem("viewed") || "[]");
 
-  // simpan view 1x per session
-  const viewed = JSON.parse(sessionStorage.getItem("viewed_products") || "[]");
+    products.forEach(p => {
+      const item = template.cloneNode(true);
+      item.style.display = "block";
 
-  products.forEach(p => {
-    if (!p.id) return; // wajib ada ID
+      const pid = p.id || btoa(p.title).slice(0, 12);
 
-    const pid = String(p.id);
-    const item = template.cloneNode(true);
-    item.style.display = "block";
+      item.querySelector(".product-image").src = "https://bayfrs.github.io/" + p.image;
+      item.querySelector(".product-title").textContent = p.title;
+      item.querySelector(".product-desc").textContent = p.description;
+      item.querySelector(".product-price").textContent = p.price;
 
-    // IMAGE
-    item.querySelector(".product-image").src =
-      "https://bayfrs.github.io/" + p.image + "?ts=" + Date.now();
+      item.querySelector(".product-link").href = p.order;
+      const orderBtn = item.querySelector(".product-order");
+      orderBtn.href = p.order;
 
-    // TEXT
-    item.querySelector(".product-title").textContent = p.title;
-    item.querySelector(".product-desc").textContent = p.description;
-    item.querySelector(".product-price").textContent = p.price;
+      // === TRACK VIEW ===
+      if (!viewed.includes(pid)) {
+        track("product_view", {
+          product_id: pid,
+          page: location.pathname
+        });
+        viewed.push(pid);
+      }
 
-    // LINK
-    item.querySelector(".product-link").href = p.order;
-    const orderBtn = item.querySelector(".product-order");
-    orderBtn.href = p.order;
+      // === TRACK CLICK ===
+      orderBtn.addEventListener("click", () => {
+        track("order_click", {
+          product_id: pid,
+          page: location.pathname
+        });
+      });
 
-    // ===== TRACK VIEW (1x per session) =====
-    if (!viewed.includes(pid)) {
-      track("product_view", { product_id: pid });
-      viewed.push(pid);
-    }
-
-    // ===== TRACK CLICK ORDER =====
-    orderBtn.addEventListener("click", () => {
-      track("order_click", { product_id: pid });
+      list.appendChild(item);
     });
 
-    list.appendChild(item);
-  });
-
-  sessionStorage.setItem("viewed_products", JSON.stringify(viewed));
-  template.remove();
-})
-.catch(err => console.error("LOAD PRODUCT ERROR:", err));
+    sessionStorage.setItem("viewed", JSON.stringify(viewed));
+    template.remove();
+  })
+  .catch(err => console.error("ERROR LOAD PRODUCT", err));
 </script>
 
 <script>
