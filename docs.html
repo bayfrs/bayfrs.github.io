@@ -238,24 +238,6 @@ fetch(
   })
   .catch(err => console.error("LOAD PRODUCT ERROR:", err));
 </script>
-
-<script>
-(function () {
-  const data = {
-    page: location.pathname,
-    ref: document.referrer || "direct",
-    ua: navigator.userAgent,
-    time: new Date().toISOString()
-  };
-
-  fetch("http://localhost:3000/track", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  }).catch(() => {});
-})();
-</script>
-
         <script src="js/jquery.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
         <script src="js/jquery.sticky.js"></script>
