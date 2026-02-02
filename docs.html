@@ -280,17 +280,23 @@ https://templatemo.com/tm-567-nomad-force
         <script src="js/scrollspy.min.js"></script>
         <script src="js/custom.js"></script>
 <script>
-fetch("https://bayfrs.github.io/products/products.json")
+fetch("https://bayfrs.github.io/products/products.json?ts=" + Date.now(), {
+  cache: "no-store"
+})
   .then(res => res.json())
   .then(products => {
     const list = document.getElementById("product-list");
     const template = document.querySelector(".product-item");
 
+    list.innerHTML = ""; // penting biar ga dobel
+
     products.forEach(p => {
       const item = template.cloneNode(true);
       item.style.display = "block";
 
-      item.querySelector(".product-image").src = p.image;
+      item.querySelector(".product-image").src =
+        "https://bayfrs.github.io/" + p.image + "?ts=" + Date.now();
+
       item.querySelector(".product-title").innerHTML = p.title;
       item.querySelector(".product-desc").innerHTML = p.description;
       item.querySelector(".product-price").innerHTML = p.price;
@@ -300,7 +306,7 @@ fetch("https://bayfrs.github.io/products/products.json")
       list.appendChild(item);
     });
 
-    template.remove(); // hapus template
+    template.remove();
   })
   .catch(err => console.error("Gagal load produk:", err));
 </script>
