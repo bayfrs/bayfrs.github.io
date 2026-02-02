@@ -212,59 +212,59 @@ fetch(
   "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now(),
   { cache: "no-store" }
 )
-  .then(res => res.json())
-  .then(products => {
-    const list = document.getElementById("product-list");
-    const template = document.querySelector(".product-item");
+.then(res => res.json())
+.then(products => {
+  const list = document.getElementById("product-list");
+  const template = document.querySelector(".product-item");
 
-    list.innerHTML = "";
+  list.innerHTML = "";
 
-    products.forEach(p => {
-      const item = template.cloneNode(true);
-      item.style.display = "block";
+  // 🔒 cegah double view (per session)
+  const viewed = JSON.parse(sessionStorage.getItem("viewed_products") || "[]");
 
-      // IMAGE
-      item.querySelector(".product-image").src =
-        "https://bayfrs.github.io/" + p.image + "?ts=" + Date.now();
+  products.forEach(p => {
+    const item = template.cloneNode(true);
+    item.style.display = "block";
 
-      item.querySelector(".product-title").textContent = p.title;
-      item.querySelector(".product-desc").textContent = p.description;
-      item.querySelector(".product-price").textContent = p.price;
+    // IMAGE
+    item.querySelector(".product-image").src =
+      "https://bayfrs.github.io/" + p.image + "?ts=" + Date.now();
 
-      // LINK
-      const productLink = item.querySelector(".product-link");
-      const orderBtn = item.querySelector(".product-order");
+    // TEXT
+    item.querySelector(".product-title").textContent = p.title;
+    item.querySelector(".product-desc").textContent = p.description;
+    item.querySelector(".product-price").textContent = p.price;
 
-      productLink.href = p.order;
-      orderBtn.href = p.order;
+    // LINK
+    const productLink = item.querySelector(".product-link");
+    const orderBtn = item.querySelector(".product-order");
 
-      // ===== TRACK VIEW (produk muncul) =====
-const viewed = JSON.parse(sessionStorage.getItem("viewed") || "[]");
+    productLink.href = p.order;
+    orderBtn.href = p.order;
 
-if (!viewed.includes(p.title)) {
-  track("product_view", {
-    product: p.title,
-    price: p.price
-  });
+    // ================= VIEW TRACK =================
+    if (!viewed.includes(p.id)) {
+      track("product_view", {
+        product_id: p.id
+      });
 
-  viewed.push(p.title);
-  sessionStorage.setItem("viewed", JSON.stringify(viewed));
-}
+      viewed.push(p.id);
+      sessionStorage.setItem("viewed_products", JSON.stringify(viewed));
+    }
 
-      // ===== TRACK KLIK ORDER =====
-      orderBtn.addEventListener("click", () => {
-  track("order_click", {
-    product: p.title,
-    price: p.price
-  });
-});
-
-      list.appendChild(item);
+    // ================= CLICK TRACK =================
+    orderBtn.addEventListener("click", () => {
+      track("order_click", {
+        product_id: p.id
+      });
     });
 
-    template.remove();
-  })
-  .catch(err => console.error("LOAD PRODUCT ERROR:", err));
+    list.appendChild(item);
+  });
+
+  template.remove();
+})
+.catch(err => console.error("LOAD PRODUCT ERROR:", err));
 </script>
 
 <script>
