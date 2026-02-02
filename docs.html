@@ -217,9 +217,11 @@ function track(event, data = {}) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       event,
-      product_id: String(data.product_id),
-      page: location.pathname,
-      ref: document.referrer || "direct",
+      data: {                     // 🔧 EDIT: bungkus ke data
+        product: String(data.product_id), // 🔧 EDIT: pakai key "product"
+        page: location.pathname,
+        ref: document.referrer || "direct"
+      },
       time: Date.now()
     })
   }).catch(() => {});
