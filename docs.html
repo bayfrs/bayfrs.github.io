@@ -284,23 +284,24 @@ fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/p
 
       // === TRACK CLICK ===
 orderBtn.addEventListener("click", async (e) => {
-  e.preventDefault();
+  e.preventDefault()
 
-  track("order_click", { product_id: pid });
+  const res = await fetch(
+    "https://pay.bayfrs.workers.dev/create-invoice",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        product_id: pid,
+        product_name: p.title,
+        price: p.price
+      })
+    }
+  )
 
-  const res = await fetch("https://pay.bayfrs.workers.dev/create-invoice", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      product_id: pid,
-      product_name: p.title,
-      price: p.price
-    })
-  });
-
-  const data = await res.json();
-  window.location.href = data.pay_url;
-});
+  const json = await res.json()
+  location.href = json.pay_url
+})
 
       list.appendChild(item);
     });
