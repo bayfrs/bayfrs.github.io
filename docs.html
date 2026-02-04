@@ -209,6 +209,7 @@ https://templatemo.com/tm-567-nomad-force
 
         <!-- JAVASCRIPT FILES -->
 <script>
+/* ================== UTIL ================== */
 function getUTM() {
   const p = new URLSearchParams(location.search);
   return p.get("utm_campaign") || "none";
@@ -238,82 +239,104 @@ function track(event, data = {}) {
     })
   }).catch(() => {});
 }
+</script>
 
-fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" + Date.now())
+<!-- ================== OBSERVER (HARUS DI ATAS) ================== -->
+<script>
+const viewedSet = new Set(
+  JSON.parse(sessionStorage.getItem("viewed") || "[]")
+);
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+
+    const pid = entry.target.dataset.pid;
+    if (!viewedSet.has(pid)) {
+      track("product_view", { product_id: pid });
+      viewedSet.add(pid);
+      sessionStorage.setItem("viewed", JSON.stringify([...viewedSet]));
+    }
+
+    observer.unobserve(entry.target);
+  });
+}, { threshold: 0.5 });
+</script>
+
+<!-- ================== LOAD PRODUCT ================== -->
+<script>
+fetch(
+  "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/products.json?ts=" +
+    Date.now()
+)
   .then(r => r.json())
   .then(products => {
     const list = document.getElementById("product-list");
     const template = document.querySelector(".product-item");
     list.innerHTML = "";
 
-    const viewed = JSON.parse(sessionStorage.getItem("viewed") || "[]");
-
     products.forEach(p => {
       const item = template.cloneNode(true);
       item.style.display = "block";
 
-      const pid = p.id || btoa(p.title).slice(0, 12); // ❗ TIDAK DIUBAH
-		
-		let img = p.image || "";
-		
-		if (img.startsWith("http")) {
-		  // sudah full URL
-		} else {
-		  img =
-		    "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/" +
-		    img.replace(/^\/+/, "");
-		}
-		
-		// cache buster
-		img += "?v=" + Date.now();
-		
-		item.querySelector(".product-image").src = img;
+      const pid = p.id || btoa(p.title).slice(0, 12);
+
+      /* ===== IMAGE ===== */
+      let img = p.image || "";
+      if (!img.startsWith("http")) {
+        img =
+          "https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/" +
+          img.replace(/^\/+/, "");
+      }
+      img += "?v=" + Date.now();
+      item.querySelector(".product-image").src = img;
+
+      /* ===== CONTENT ===== */
       item.querySelector(".product-title").textContent = p.title;
       item.querySelector(".product-desc").textContent = p.description;
       item.querySelector(".product-price").textContent = p.price;
 
+      /* ===== LINK ===== */
       item.querySelector(".product-link").href = p.order;
       const orderBtn = item.querySelector(".product-order");
       orderBtn.href = p.order;
 
-    item.dataset.pid = pid;
-observer.observe(item);
+      /* ===== TRACK VIEW (OBSERVER) ===== */
+      item.dataset.pid = pid;
+      observer.observe(item);
 
-      // === TRACK CLICK ===
-orderBtn.addEventListener("click", async (e) => {
-  e.preventDefault();
+      /* ===== TRACK CLICK ===== */
+      orderBtn.addEventListener("click", async e => {
+        e.preventDefault();
 
-  // 1. tracking tetap jalan
-  track("order_click", { product_id: pid });
+        track("order_click", { product_id: pid });
 
-  // 2. buat invoice ke worker payment
-  const res = await fetch("https://pay.bayfrs.workers.dev/create-invoice", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      product_id: pid,
-      product_name: p.title,
-      price: p.price
-    })
-  });
+        const res = await fetch(
+          "https://pay.bayfrs.workers.dev/create-invoice",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              product_id: pid,
+              product_name: p.title,
+              price: p.price
+            })
+          }
+        );
 
-  const data = await res.json();
-
-  // 3. pindah ke halaman invoice
-  if (data.ok) {
-    window.location.href = data.pay_url;
-  }
-});
+        const data = await res.json();
+        if (data.ok) {
+          window.location.href = data.pay_url;
+        }
+      });
 
       list.appendChild(item);
     });
 
-    sessionStorage.setItem("viewed", JSON.stringify(viewed));
     template.remove();
   })
   .catch(err => console.error("ERROR LOAD PRODUCT", err));
 </script>
-
 
         <script src="js/jquery.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
