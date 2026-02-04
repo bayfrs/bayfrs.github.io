@@ -276,6 +276,7 @@ fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/p
       const orderBtn = item.querySelector(".product-order");
       orderBtn.href = p.order;
 
+    
       // === TRACK VIEW ===
       if (!viewed.includes(pid)) {
         track("product_view", { product_id: pid });
@@ -315,6 +316,24 @@ orderBtn.addEventListener("click", async (e) => {
     template.remove();
   })
   .catch(err => console.error("ERROR LOAD PRODUCT", err));
+</script>
+
+<script>
+const viewed = JSON.parse(sessionStorage.getItem("viewed") || "[]");
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const pid = entry.target.dataset.pid;
+      if (!viewed.includes(pid)) {
+        track("product_view", { product_id: pid });
+        viewed.push(pid);
+        sessionStorage.setItem("viewed", JSON.stringify(viewed));
+      }
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
 </script>
 
         <script src="js/jquery.min.js"></script>
