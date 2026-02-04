@@ -276,12 +276,8 @@ fetch("https://raw.githubusercontent.com/bayfrs/bayfrs.github.io/main/products/p
       const orderBtn = item.querySelector(".product-order");
       orderBtn.href = p.order;
 
-    
-      // === TRACK VIEW ===
-      if (!viewed.includes(pid)) {
-        track("product_view", { product_id: pid });
-        viewed.push(pid);
-      }
+    item.dataset.pid = pid;
+observer.observe(item);
 
       // === TRACK CLICK ===
 orderBtn.addEventListener("click", async (e) => {
